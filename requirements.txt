@@ -1,0 +1,6 @@
+streamlit
+PyPDF2
+matplotlib
+scikit-learn
+firebase-admin
+reportlabs
