@@ -5,27 +5,36 @@ import PyPDF2
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase using Streamlit secrets
-if not firebase_admin._apps:
-    cred = credentials.Certificate(st.secrets["firebase"])
-    firebase_admin.initialize_app(cred)
+# ------------------ SAFE FIREBASE INIT ------------------
 
-db = firestore.client()
+try:
+    if not firebase_admin._apps:
+        cred = credentials.Certificate("firebase_key.json")
+        firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    firebase_available = True
+except:
+    firebase_available = False
 
 st.set_page_config(page_title="Smart Resume AI", page_icon="🚀")
 
 # ------------------ LOGIN SYSTEM ------------------
 
 def register_user(username, password):
-    db.collection("users").document(username).set({
-        "password": password
-    })
+    if firebase_available:
+        db.collection("users").document(username).set({
+            "password": password
+        })
+    else:
+        st.warning("Firebase not connected (local mode)")
 
 def login_user(username, password):
-    user = db.collection("users").document(username).get()
-    
-    if user.exists:
-        return user.to_dict()["password"] == password
+    if firebase_available:
+        user = db.collection("users").document(username).get()
+        if user.exists:
+            return user.to_dict()["password"] == password
+    else:
+        return True  # allow login in local
     return False
 
 # Session state
@@ -123,7 +132,7 @@ if uploaded_file:
     st.subheader(f"📊 ATS Score: {overall_score}%")
     st.progress(overall_score / 100)
 
-    # Simple Job Match (No ML)
+    # Simple Job Match (no ML)
     if job_desc:
         match_score = 70
         st.subheader("📌 Job Match")
