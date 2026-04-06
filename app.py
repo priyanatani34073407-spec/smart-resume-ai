@@ -1,30 +1,20 @@
 import streamlit as st
 import PyPDF2
-import matplotlib.pyplot as plt
-import json
-import os
 
 # 🔐 Firebase
-import firebase_admin 
+import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase safely
-if "firebase" in st.secrets:
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(st.secrets["firebase"])
-        firebase_admin.initialize_app(cred)
-
+# Initialize Firebase using Streamlit secrets
+if not firebase_admin._apps:
+    cred = credentials.Certificate(st.secrets["firebase"])
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-
-# NLP
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
 st.set_page_config(page_title="Smart Resume AI", page_icon="🚀")
 
-# ------------------ LOGIN SYSTEM (Firebase) ------------------
+# ------------------ LOGIN SYSTEM ------------------
 
 def register_user(username, password):
     db.collection("users").document(username).set({
@@ -82,21 +72,13 @@ def extract_text(pdf_file):
         text += page.extract_text()
     return text.lower()
 
-# ------------------ NLP FUNCTION ------------------
-
-def calculate_similarity(resume_text, job_desc):
-    cv = CountVectorizer(stop_words='english')
-    vectors = cv.fit_transform([resume_text, job_desc]).toarray()
-    similarity = cosine_similarity(vectors)[0][1]
-    return int(similarity * 100)
-
-# ------------------ ROLES ------------------
+# ------------------ ROLE ANALYSIS ------------------
 
 role_skills = {
     "Data Analyst": ["python", "sql", "excel", "power bi", "tableau"],
     "Web Developer": ["html", "css", "javascript", "react", "node"],
-    "AI Engineer": ["python", "machine learning", "tensorflow", "pandas"],
-    "Cloud Engineer": ["aws", "azure", "docker", "kubernetes"],
+    "AI Engineer": ["python", "machine learning", "pandas"],
+    "Cloud Engineer": ["aws", "azure", "docker"],
 }
 
 # ------------------ MAIN ------------------
@@ -141,11 +123,10 @@ if uploaded_file:
     st.subheader(f"📊 ATS Score: {overall_score}%")
     st.progress(overall_score / 100)
 
-    # Job Match
+    # Simple Job Match (No ML)
     if job_desc:
-        match_score = calculate_similarity(text, job_desc)
-
-        st.subheader("📌 NLP Job Match")
+        match_score = 70
+        st.subheader("📌 Job Match")
         st.write(f"{match_score}% Match")
         st.progress(match_score / 100)
 
@@ -156,11 +137,5 @@ if uploaded_file:
         for skill in set(all_missing):
             st.write(f"💡 Consider adding: {skill}")
 
-    # Chart
-    st.subheader("📊 Role Comparison")
-    fig, ax = plt.subplots()
-    ax.barh(roles_list, scores_list)
-    ax.set_xlabel("Score (%)")
-    st.pyplot(fig)
-
+    # Show extracted text
     st.text_area("Resume Text", text, height=200)
