@@ -8,10 +8,12 @@ import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase using Streamlit secrets
-if not firebase_admin._apps:
-    cred = credentials.Certificate(st.secrets["firebase"])
-    firebase_admin.initialize_app(cred)
+# Initialize Firebase safely
+if "firebase" in st.secrets:
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(st.secrets["firebase"])
+        firebase_admin.initialize_app(cred)
+
 
 db = firestore.client()
 
