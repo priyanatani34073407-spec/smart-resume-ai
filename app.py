@@ -261,9 +261,9 @@ ROLE_SKILLS = {
         "skills": ["html", "css", "javascript", "react", "node", "mongodb", "sql", "api", "git", "python"],
         "icon": "🔧"
     },
-    "Data Scientist": {
-        "skills": ["python", "machine learning", "statistics", "pandas", "numpy", "sql", "data analysis", "r", "visualization", "scikit"],
-        "icon": "🔬"
+    "ML Engineer": {
+        "skills": ["python", "machine learning", "deep learning", "tensorflow", "pytorch", "scikit", "mlops", "docker", "api", "model deployment"],
+        "icon": "🧠"
     },
     "DevOps Engineer": {
         "skills": ["docker", "kubernetes", "jenkins", "ci/cd", "linux", "aws", "git", "terraform", "ansible", "monitoring"],
