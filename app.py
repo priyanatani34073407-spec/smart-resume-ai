@@ -612,6 +612,11 @@ job_match = nlp_job_match(resume_text, job_desc) if job_desc.strip() else None
 missing_for_best = role_results[best_role]["missing"]
 suggestions = generate_suggestions(resume_text, sections, missing_for_best, best_role)
 
+# ─── AUTO SAVE REPORT (so ranking always works) ───
+if "last_saved_file" not in st.session_state or st.session_state.last_saved_file != uploaded_file.name:
+    save_report(st.session_state.username, best_role, best_score, ats_score)
+    st.session_state.last_saved_file = uploaded_file.name
+
 # ─── TOP METRICS ───
 st.markdown('<div class="section-header">📊 Key Metrics</div>', unsafe_allow_html=True)
 m1, m2, m3, m4 = st.columns(4)
